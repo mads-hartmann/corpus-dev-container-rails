@@ -1,0 +1,20 @@
+// The Dev Container format allows you to configure your environment. At the heart of it
+// is a Docker image or Dockerfile which controls the tools available in your environment.
+//
+// See https://aka.ms/devcontainer.json for more information.
+{
+	"name": "Rails",
+	// Ruby 3.4 base image matches .ruby-version (3.4.9); the Dockerfile adds libvips
+	// for the image_processing gem.
+	"build": {
+		"context": ".",
+		"dockerfile": "Dockerfile"
+	},
+	"forwardPorts": [3000],
+	"portsAttributes": {
+		"3000": {
+			"label": "Rails",
+			"onAutoForward": "notify"
+		}
+	}
+}
