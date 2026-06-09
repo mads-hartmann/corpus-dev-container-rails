@@ -1,0 +1,14 @@
+{
+	"name": "corpus-dev-container-rails",
+	"build": {
+		"context": ".",
+		"dockerfile": "Dockerfile"
+	},
+	"forwardPorts": [3000],
+	"portsAttributes": {
+		"3000": {
+			"label": "Rails server",
+			"onAutoForward": "notify"
+		}
+	}
+}

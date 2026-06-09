@@ -1,0 +1,28 @@
+tasks:
+  install:
+    name: Install dependencies
+    description: Install Ruby gems with Bundler.
+    command: |
+      bundle install
+    triggeredBy:
+      - postDevcontainerStart
+
+  setupDb:
+    name: Prepare database
+    description: Create, load schema, and migrate the SQLite development database.
+    command: |
+      bin/rails db:prepare
+    triggeredBy:
+      - postDevcontainerStart
+    dependsOn:
+      - install
+
+services:
+  railsServer:
+    name: Rails server
+    description: Run the Puma development server on port 3000.
+    commands:
+      start: |
+        bin/rails server -b 0.0.0.0 -p 3000
+      ready: |
+        curl -sf http://localhost:3000 > /dev/null
