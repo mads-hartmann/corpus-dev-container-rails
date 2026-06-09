@@ -1,0 +1,19 @@
+{
+	"name": "corpus-dev-container-rails",
+	"build": {
+		"context": ".",
+		"dockerfile": "Dockerfile"
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/ruby": {
+			"version": "3.4.9"
+		}
+	},
+	"forwardPorts": [3000],
+	"portsAttributes": {
+		"3000": {
+			"label": "Rails",
+			"onAutoForward": "notify"
+		}
+	}
+}
