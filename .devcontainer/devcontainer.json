@@ -1,0 +1,16 @@
+{
+	"name": "Rails",
+	"image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+	"features": {
+		"ghcr.io/devcontainers/features/ruby": {
+			"version": "3.4.9"
+		}
+	},
+	"forwardPorts": [3000],
+	"portsAttributes": {
+		"3000": {
+			"label": "Rails Server",
+			"onAutoForward": "notify"
+		}
+	}
+}
