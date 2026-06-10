@@ -1,0 +1,32 @@
+tasks:
+  installDeps:
+    name: Install dependencies
+    description: Install Ruby gems with Bundler and prepare the database.
+    command: |
+      bundle install
+      bin/rails db:prepare
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+services:
+  rails:
+    name: Rails server
+    description: Run the Rails development server (Puma) on port 3000.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3000 --dont-wait --admission creator_only --name "rails"
+        # Allow the Ona exposed-port host through Rails' host authorization in
+        # development. Derive the runner domain from the exposed port URL so the
+        # allowlist is not tied to a specific runner.
+        runner_host="$(ona environment port list -o json | jq -r '.[] | select(.port==3000) | .url' | sed -E 's#^https?://##; s#/.*##')"
+        if [ -n "$runner_host" ]; then
+          export RAILS_DEVELOPMENT_HOSTS=".${runner_host#*.}"
+        fi
+        bin/rails server -b 0.0.0.0 -p 3000
+      ready: |
+        curl -sf http://localhost:3000 > /dev/null
