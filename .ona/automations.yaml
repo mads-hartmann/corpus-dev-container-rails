@@ -1,0 +1,25 @@
+tasks:
+  installDeps:
+    name: Install dependencies
+    description: Install Ruby gems and prepare the SQLite database.
+    command: |
+      bundle install
+      bin/rails db:prepare
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+services:
+  railsServer:
+    name: Rails Server
+    description: Run the Rails (Puma) development server.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3000 --dont-wait --admission creator_only --name "Rails Server"
+        bin/rails server -b 0.0.0.0 -p 3000
+      ready: |
+        curl -sf http://localhost:3000 > /dev/null
