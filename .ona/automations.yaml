@@ -1,0 +1,38 @@
+tasks:
+  setup:
+    name: Install dependencies
+    description: Install gems and prepare the development database.
+    command: |
+      bin/setup --skip-server
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+  test:
+    name: Run tests
+    description: Run the Rails test suite.
+    command: |
+      bin/rails test
+    dependsOn:
+      - setup
+    triggeredBy:
+      - manual
+
+services:
+  rails-server:
+    name: Rails server
+    description: Puma-backed Rails development server.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3000 --dont-wait --admission creator_only --name "Rails server"
+        until host="$(ona environment port get 3000 -f URL | cut -c 9-)" && [ -n "$host" ]; do
+          sleep 1
+        done
+        export RAILS_DEVELOPMENT_HOSTS="$host"
+        bin/rails server -b 0.0.0.0 -p 3000
+      ready: |
+        curl -sf http://localhost:3000 > /dev/null
