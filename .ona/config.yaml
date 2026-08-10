@@ -1,0 +1,30 @@
+tasks:
+  install-dependencies:
+    name: Install dependencies
+    command: bin/setup --skip-server
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+  build:
+    name: Build assets
+    command: SECRET_KEY_BASE_DUMMY=1 bin/rails assets:precompile
+    dependsOn:
+      - install-dependencies
+    triggeredBy:
+      - manual
+
+services:
+  rails:
+    name: Rails server
+    commands:
+      start: |
+        bin/rails server -b 0.0.0.0 &
+        server_pid=$!
+        ona environment port open 3000 --dont-wait --admission creator_only --name rails
+        wait "$server_pid"
+      ready: curl -sf http://localhost:3000
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
