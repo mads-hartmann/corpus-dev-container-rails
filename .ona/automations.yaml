@@ -1,0 +1,32 @@
+tasks:
+  install-dependencies:
+    name: Install dependencies
+    description: Install Ruby gems and prepare the development database.
+    command: bin/setup --skip-server
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+  build:
+    name: Build assets
+    description: Compile the Rails asset pipeline.
+    command: bin/rails assets:precompile
+    triggeredBy:
+      - manual
+    dependsOn:
+      - install-dependencies
+
+services:
+  rails:
+    name: rails
+    description: Run the Rails development server.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3000 --admission creator_only --name rails
+        export RAILS_DEVELOPMENT_HOSTS="$(ona environment port get 3000 -f URL | cut -c 9-)"
+        bin/rails server --binding 0.0.0.0 --port 3000
+      ready: curl -fsS http://localhost:3000/up
