@@ -24,8 +24,10 @@ services:
     commands:
       start: |
         until bundle check > /dev/null 2>&1; do sleep 1; done
-        ona environment port open 3000 --dont-wait --admission creator_only --name "Rails"
-        exec env RAILS_DEVELOPMENT_HOSTS="$(ona environment port get 3000 -f URL | cut -c 9-)" bin/dev -b 0.0.0.0
+        env RAILS_DEVELOPMENT_HOSTS="$(ona environment port get 3000 -f URL | cut -c 9-)" bin/dev -b 0.0.0.0 &
+        rails_pid=$!
+        ona environment port open 3000 --admission creator_only --name "Rails"
+        wait "$rails_pid"
       ready: curl -fsS http://localhost:3000
     triggeredBy:
       - manual
