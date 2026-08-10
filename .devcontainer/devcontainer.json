@@ -1,0 +1,11 @@
+{
+  "name": "Corpus Rails",
+  "image": "mcr.microsoft.com/devcontainers/ruby:3.4",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Rails",
+      "onAutoForward": "notify"
+    }
+  }
+}

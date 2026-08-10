@@ -1,0 +1,31 @@
+tasks:
+  install-dependencies:
+    name: Install dependencies
+    description: Install gems and prepare the development database.
+    command: bin/setup --skip-server
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+  build:
+    name: Build assets
+    description: Precompile the Rails application assets.
+    command: SECRET_KEY_BASE_DUMMY=1 bin/rails assets:precompile
+    triggeredBy:
+      - manual
+    dependsOn:
+      - install-dependencies
+
+services:
+  rails:
+    name: Rails
+    description: Run the Rails development server.
+    commands:
+      start: |
+        ona environment port open 3000 --admission creator_only --name "Rails"
+        exec bin/dev -b 0.0.0.0
+      ready: curl -fsS http://localhost:3000
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
