@@ -1,0 +1,37 @@
+services:
+  rails:
+    name: rails
+    description: Rails development server
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        bin/rails server -b 0.0.0.0 -p 3000 &
+        server_pid=$!
+        ona environment port open 3000 --dont-wait --admission creator_only --name rails
+        wait "$server_pid"
+      ready: curl -fsS http://localhost:3000/up
+
+tasks:
+  install-dependencies:
+    name: Install dependencies
+    description: Install native packages, Ruby gems, and prepare the database
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+    command: >-
+      sudo apt-get update -qq &&
+      sudo apt-get install --no-install-recommends -y libvips sqlite3 &&
+      bundle install &&
+      bin/rails db:prepare
+
+  build:
+    name: Build assets
+    description: Precompile Rails assets
+    dependsOn:
+      - install-dependencies
+    triggeredBy:
+      - manual
+    command: SECRET_KEY_BASE_DUMMY=1 bin/rails assets:precompile
