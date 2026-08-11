@@ -1,0 +1,43 @@
+tasks:
+  install-dependencies:
+    name: Install dependencies
+    description: Install Ruby gems and prepare the development database.
+    command: |
+      bundle check || bundle install
+      bin/rails db:prepare
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+  build:
+    name: Build assets
+    description: Precompile the Rails assets.
+    command: SECRET_KEY_BASE_DUMMY=1 bin/rails assets:precompile
+    triggeredBy:
+      - manual
+    dependsOn:
+      - install-dependencies
+
+  test:
+    name: Run tests
+    description: Run the Rails test suite.
+    command: bin/rails test
+    triggeredBy:
+      - manual
+    dependsOn:
+      - install-dependencies
+
+services:
+  rails-server:
+    name: Rails server
+    description: Run the Rails development server.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3000 --admission creator_only --name "Rails server"
+        export RAILS_DEVELOPMENT_HOSTS="$(ona environment port get 3000 -f URL | cut -c 9-)"
+        bin/rails server -b 0.0.0.0
+      ready: curl -fsS http://localhost:3000/up
