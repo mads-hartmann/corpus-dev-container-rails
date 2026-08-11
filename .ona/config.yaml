@@ -1,0 +1,24 @@
+tasks:
+  installDeps:
+    name: Install dependencies
+    description: Install the Ruby gems locked for this Rails application.
+    command: bundle install
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+services:
+  rails-server:
+    name: Rails server
+    description: Run the Rails development server.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        bin/rails db:prepare
+        ona environment port open 3000 --admission creator_only --name "Rails server"
+        exec bin/rails server --binding 0.0.0.0 --port 3000
+      ready: curl -fsS http://localhost:3000
+      stop: pkill -f "bin/rails server" || true
