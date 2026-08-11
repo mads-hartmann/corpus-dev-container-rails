@@ -1,0 +1,28 @@
+tasks:
+  installDeps:
+    name: Install dependencies
+    description: Install Ruby dependencies and prepare the development database.
+    command: bin/setup --skip-server
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+services:
+  rails-server:
+    name: Rails server
+    description: Run the Rails development server.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        set -e
+        ona environment port open 3000 --admission creator_only --name "Rails server"
+        export ONA_EXPOSED_HOST="$(ona environment port list -o=json | jq -r '.[] | select(.port == 3000) | .url' | sed -E 's#^https?://([^/:]+).*#\1#')"
+        test -n "$ONA_EXPOSED_HOST" && test "$ONA_EXPOSED_HOST" != "null"
+        RAILS_DEVELOPMENT_HOSTS="$ONA_EXPOSED_HOST" bin/dev -b 0.0.0.0
+      ready: |
+        set -e
+        export ONA_EXPOSED_HOST="$(ona environment port list -o=json | jq -r '.[] | select(.port == 3000) | .url' | sed -E 's#^https?://([^/:]+).*#\1#')"
+        curl -fsS -H "Host: ${ONA_EXPOSED_HOST}" http://localhost:3000/
