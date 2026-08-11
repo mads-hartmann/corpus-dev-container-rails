@@ -1,0 +1,32 @@
+tasks:
+  installDependencies:
+    name: Install dependencies
+    description: Install the Ruby gems required by the Rails application.
+    command: bundle install
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+  build:
+    name: Build assets
+    description: Precompile the Rails assets for a production build.
+    command: SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bundle exec rails assets:precompile
+    triggeredBy:
+      - manual
+    dependsOn:
+      - installDependencies
+
+services:
+  rails:
+    name: Rails development server
+    description: Run the Rails application with Puma.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        bundle exec rails db:prepare
+        ona environment port open 3000 --admission creator_only --name "Rails development server"
+        bundle exec rails server --binding 0.0.0.0 --port 3000
+      ready: curl -fsS http://localhost:3000/up
