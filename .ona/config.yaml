@@ -1,0 +1,25 @@
+tasks:
+  installDependencies:
+    name: Install dependencies
+    description: Install Ruby dependencies and prepare the SQLite development database.
+    command: bin/setup --skip-server
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+services:
+  railsServer:
+    name: Rails server
+    description: Run the Rails development server.
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3000 --admission creator_only --name "Rails server"
+        export ONA_EXPOSED_HOST="$(ona environment port get 3000 -f URL | cut -c 9-)"
+        RAILS_DEVELOPMENT_HOSTS="$ONA_EXPOSED_HOST" bin/rails server -b 0.0.0.0 -p 3000
+      ready: |
+        ONA_EXPOSED_HOST="$(ona environment port get 3000 -f URL | cut -c 9-)"
+        curl -fsS -H "Host: ${ONA_EXPOSED_HOST}" http://localhost:3000/up
