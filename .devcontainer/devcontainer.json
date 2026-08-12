@@ -1,0 +1,6 @@
+{
+  "name": "Rails",
+  "build": {
+    "dockerfile": "Dockerfile"
+  }
+}

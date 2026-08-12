@@ -40,6 +40,11 @@ Rails.application.configure do
   # Set localhost to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
 
+  # Allow the hostname Ona assigns to the development server's exposed port.
+  ENV.fetch("RAILS_DEVELOPMENT_HOSTS", "").split(",").each do |host|
+    config.hosts << host if host.present?
+  end
+
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
 
