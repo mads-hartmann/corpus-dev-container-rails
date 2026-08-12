@@ -1,0 +1,8 @@
+{
+  "name": "Corpus Dev Container Rails",
+  "build": {
+    "context": "..",
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "vscode"
+}
