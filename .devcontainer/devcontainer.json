@@ -1,0 +1,6 @@
+{
+  "name": "Corpus Dev Container Rails",
+  "build": {
+    "dockerfile": "Dockerfile"
+  }
+}

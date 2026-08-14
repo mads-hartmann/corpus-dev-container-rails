@@ -1,0 +1,23 @@
+tasks:
+  install-dependencies:
+    name: Install dependencies
+    description: Install the Ruby dependencies from the lockfile
+    command: bundle install
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+services:
+  rails:
+    name: Rails server
+    description: Rails development server
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
+    commands:
+      start: |
+        ona environment port open 3000 --admission creator_only --name "Rails server"
+        export ONA_EXPOSED_HOST="$(ona environment port get 3000 -f URL | cut -c 9-)"
+        RAILS_DEVELOPMENT_HOSTS="$ONA_EXPOSED_HOST" bin/rails server -b 0.0.0.0
+      ready: curl -fsS http://localhost:3000/up > /dev/null
