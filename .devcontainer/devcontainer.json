@@ -1,0 +1,4 @@
+{
+  "name": "corpus-dev-container-rails",
+  "image": "mcr.microsoft.com/devcontainers/ruby:3.4-bookworm"
+}
