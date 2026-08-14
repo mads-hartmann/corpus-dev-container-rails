@@ -1,0 +1,25 @@
+tasks:
+  install-dependencies:
+    name: Install dependencies
+    command: bin/setup --skip-server
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+services:
+  rails:
+    name: Rails
+    description: Rails development server
+    commands:
+      start: |
+        ona environment port open 3000 --admission creator_only --name "Rails"
+        export ONA_EXPOSED_HOST="$(ona environment port get 3000 -f URL | cut -c 9-)"
+        export RAILS_DEVELOPMENT_HOSTS="$ONA_EXPOSED_HOST"
+        until bundle check; do sleep 2; done
+        bin/rails db:prepare
+        exec bin/rails server --binding 0.0.0.0 --port 3000
+      ready: curl -fsS http://localhost:3000/up
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
