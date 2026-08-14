@@ -1,0 +1,7 @@
+{
+  "name": "corpus-dev-container-rails",
+  "build": {
+    "context": "..",
+    "dockerfile": "Dockerfile"
+  }
+}

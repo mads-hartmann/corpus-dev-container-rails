@@ -1,0 +1,25 @@
+tasks:
+  install_dependencies:
+    name: Install dependencies
+    command: bundle install
+    triggeredBy:
+      - manual
+      - postDevcontainerStart
+      - prebuild
+
+services:
+  rails:
+    name: Rails server
+    description: Rails development server
+    commands:
+      start: |
+        set -e
+        ona environment port open 3000 --admission creator_only --name "Rails server"
+        export ONA_EXPOSED_HOST="$(ona environment port get 3000 -f URL | cut -c 9-)"
+        export RAILS_DEVELOPMENT_HOSTS="$ONA_EXPOSED_HOST"
+        bin/rails server -b 0.0.0.0 -p 3000
+      ready: |
+        curl -fsS -H "Host: ${ONA_EXPOSED_HOST:-localhost}" http://localhost:3000/ > /dev/null
+    triggeredBy:
+      - manual
+      - postEnvironmentStart
